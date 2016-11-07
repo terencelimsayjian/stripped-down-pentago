@@ -1,0 +1,455 @@
+h1 {
+  text-align: center;
+  margin-top: 5px;
+  margin-bottom: 0px;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 900;
+  font-size: 40px;
+}
+
+p, h3, li {
+  /*font-family: 'Signika', sans-serif;*/
+  font-family: 'Cabin', sans-serif;
+  /*font-weight: bold;*/
+}
+
+button {
+  display: block;
+  margin: 0 auto;
+}
+
+div {
+  box-sizing: border-box;
+}
+
+body {
+  width: 600px;
+  height: 600px;
+  margin: 0 auto;
+  background-image: url('wood_background.jpg');
+  /*background-image: url('http://www.publicdomainpictures.net/pictures/130000/velka/grey-gradient-background-1439642315lMp.jpg');*/
+  background-size: cover;
+}
+
+.alert-message-container p {
+  padding-top: 7px;
+}
+
+.alert-message-container, .score-container, .admin-btn, .next-game-btn, .close-instructions {
+  background-color: white;
+  opacity: 0.9;
+  border-radius: 5px;
+    /*box-shadow: 4px 4px 2px #888888;*/
+}
+
+.admin-btn:hover, .next-game-btn:hover, .close-instructions:hover {
+  cursor: pointer;
+  box-shadow: 4px 4px 2px #888888;
+}
+
+.score-container {
+  background-color: grey;
+}
+
+.alert-message-container {
+  height: 40px;
+  width: 50%;
+  margin: 10px auto;
+  font-size: 20px;
+  text-align: center;
+}
+
+.alert-message {
+  margin: 5px 0;
+}
+
+.next-game-btn {
+  background-color: white;
+  width: 50%;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  position: relative;
+  text-align: center;
+}
+
+.next-game-btn p {
+  padding: 4px;
+  margin: 0;
+}
+
+.scoreboard {
+  margin: 20px auto;
+  width: 100%;
+}
+
+.score-container {
+  width: 31.33%;
+  margin: 0 1%;
+  float: left;
+  box-sizing: border-box;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.score-container:first-child {
+  background-image: url('white_dot.png');
+  background-size: cover;
+  background-position: center;
+  background-color: transparent;
+}
+
+.score-container:last-child {
+  background-image: url('black_dot.png');
+  background-size: cover;
+  background-position: center;
+  background-color: transparent;
+  color: white;
+}
+
+.score-container h3 {
+  margin: 5px 0;
+}
+
+.score-container p {
+  margin: 5px 0;
+  font-size: 1.2em;
+}
+
+.score-container img {
+  height: 100%;
+  width: 100%;
+  float: right;
+}
+
+.admin-btn-container {
+    width: 65%;
+    margin: 0 auto;
+}
+
+.admin-btn {
+  text-align: center;
+  width: 35%;
+  padding: 5px;
+  font-size: 20px;
+  float: left;
+}
+
+.admin-btn:first-child {
+  margin-left: 10%;
+  margin-right: 5%;
+}
+
+.admin-btn:last-child {
+  margin-left: 5%;
+  margin-right: 10%;
+}
+
+.admin-btn p {
+  margin: 0;
+}
+
+.instructions-container {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  /*background-color: white;*/
+  background-image: url('grey-gradient-background.jpg');
+}
+
+.instructions {
+  height: 600px;
+  width: 600px;
+  padding: 50px;
+  margin: 0 auto;
+}
+
+.close-instructions {
+    width: 30%;
+    margin: 10px auto;
+    padding: 0;
+    text-align: center;
+}
+
+.instructions .close-instructions p {
+  text-align: center;
+}
+
+.instructions h3 {
+  text-align: center;
+}
+
+.instructions p {
+  text-align: justify;
+  padding: 5px;
+}
+
+.game-board-container {
+  width: 65%;
+  height: 65%;
+  margin: 0 auto;
+}
+
+.right-container {
+  width: 100%;
+}
+
+.game-board {
+  height: 80%;
+  width: 80%;
+  margin: 0 auto;
+  float: left;
+}
+
+.game-tile {
+  border: 1px solid rgb(255, 255, 255);
+  height: 50%;
+  width: 50%;
+  float: left;
+  background-color: grey;
+  /*background-color: rgb(129, 46, 46);*/
+  /*background-image: url('wood-with-light-background.jpg');*/
+  opacity: 0.9;
+  border-radius: 5px;
+}
+
+.rotate-tile-right {
+  transition: all 0.8s ease;
+  transform: rotate(90deg);
+}
+
+.rotate-tile-left {
+  transition: all 0.8s ease;
+  transform: rotate(-90deg);
+}
+
+.game-square {
+  border: 0.5px solid #4f4e4d;
+  height: 33.33%;
+  width: 33.33%;
+  float: left;
+  font-size: 60px;
+  font-weight: bold;
+  text-align: center;
+  border-radius: 3px;
+}
+
+.top-btn-container {
+  position: relative;
+}
+
+.top-btn-container, .bottom-btn-container {
+  height: 10%;
+  width: 80%;
+  margin: 0 auto;
+}
+
+.top-btn, .bottom-btn {
+  display: block;
+}
+
+.left-btn-container, .right-btn-container {
+  float: left;
+  height: 80%;
+  width: 10%;
+  margin: 0 auto;
+  position: relative;
+}
+
+.X, .O, .hoverX, .hoverO {
+  background-size: 90%;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.X {
+  background-image: url('white_dot.png');
+}
+
+.O {
+  background-image: url('black_dot.png');
+}
+
+.hoverX {
+  background-image: url('white_dot.png');
+  opacity: 0.75;
+}
+
+.hoverO {
+  background-image: url('black_dot.png');
+  opacity: 0.55;
+}
+
+.rotate-btn {
+  background-size: 90% 90%;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.rotate-btn:hover {
+  background-size: 100% 100%;
+  cursor: pointer;
+}
+
+#rotate-right0, #rotate-left2 {
+  float: left;
+  height: 100%;
+  width: 25%;
+}
+
+#rotate-right1, #rotate-left0 {
+  height: 25%;
+  width: 100%;
+}
+
+#rotate-right2, #rotate-left3 {
+  position: absolute;
+  bottom: 0;
+  height: 25%;
+  width: 100%;
+}
+
+#rotate-left1, #rotate-right3 {
+  float: right;
+  height: 100%;
+  width: 25%;
+}
+
+#rotate-right0 {
+  background-image: url('top-left-arrow.png');
+}
+
+#rotate-right1 {
+  background-image: url('right-top-arrow.png');
+}
+
+#rotate-right2 {
+  background-image: url('left-bottom-arrow.png');
+}
+
+#rotate-right3 {
+  background-image: url('bottom-right-arrow.png');
+}
+
+#rotate-left0 {
+  background-image: url('left-top-arrow.png');
+}
+
+#rotate-left1 {
+  background-image: url('top-right-arrow.png');
+}
+
+#rotate-left2 {
+  background-image: url('bottom-left-arrow.png');
+}
+
+#rotate-left3 {
+  background-image: url('right-bottom-arrow.png');
+}
+
+@media only screen and (max-width: 600px) {
+  body {
+    height: 400px;
+    width: 400px;
+  }
+
+  .game-board-container {
+    height: 100%;
+    width: 100%;
+  }
+
+  .instructions {
+    height: 400px;
+    width: 400px;
+    padding: 25px;
+  }
+
+  .alert-message-container {
+    width: 80%;
+    height: 28px;
+  }
+
+  .admin-btn-container {
+    width: 100%;
+  }
+
+  .alert-message-container p {
+    padding: 4px;
+  }
+
+  .admin-btn {
+    width: 45%;
+  }
+
+  .admin-btn:first-child {
+    margin: 0 2.5%;
+  }
+
+  .admin-btn:last-child {
+    margin: 0 2.5%;
+  }
+
+  h3, p, li {
+    font-size: 0.85em;
+  }
+
+  h1 {
+    font-size: 32px;
+  }
+}
+
+@media only screen and (max-width: 400px) {
+  body {
+    height: 320px;
+    width: 320px;
+  }
+
+  .instructions {
+    height: 320px;
+    width: 320px;
+    padding: 20px;
+  }
+
+  .game-board-container {
+    height: 100%;
+    width: 100%;
+  }
+
+  .alert-message-container {
+    /*height: 40px;*/
+    width: 80%;
+    height: 25px;
+  }
+
+  .alert-message-container p {
+    padding: 3px;
+  }
+
+  .admin-btn-container {
+    width: 100%;
+  }
+
+  .admin-btn {
+    width: 45%;
+  }
+
+  .admin-btn:first-child {
+    margin: 0 2.5%;
+  }
+
+  .admin-btn:last-child {
+    margin: 0 2.5%;
+  }
+
+  h3, p, li {
+    font-size: 0.8em;
+  }
+
+  h1 {
+    font-size: 28px;
+  }
+}
