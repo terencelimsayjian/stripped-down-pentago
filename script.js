@@ -11,6 +11,87 @@ $(document).ready(function () {
   var player = 'X'
   var movePart = 'A'
 
+  /*
+  Flow:
+  1) Player 1 places a tile
+  2) Check win condition -> Can either be player 1 win, or draw(full board)
+  3) Player 1 rotates a tile
+  4) Check win condition - > Can be either player win, or draw(two player wins)
+  5) Change player
+
+  Global Variables
+  1) Playing
+  2) PLayer move
+
+  Functions
+  1) Check win
+  2) Check draw (Maybe this should take into account two win conditions)
+  3) Rotate board
+  4)
+  */
+
+  // Checks win condition for a particular tile with direction and coordinates specified
+  function checkWin (xCoord, yCoord, direction) {
+    var xAdjust = 0
+    var yAdjust = 0
+
+    switch (direction) {
+      case 'vertical':
+        xAdjust = 1
+        yAdjust = 0
+        break
+      case 'horizontal':
+        xAdjust = 0
+        yAdjust = 1
+        break
+      case 'upDiagonal':
+        xAdjust = -1
+        yAdjust = 1
+        break
+      case 'downDiagonal':
+        xAdjust = -1
+        yAdjust = -1
+        break
+      default:
+        xAdjust = 0
+        yAdjust = 0
+    }
+
+    var playerMove = gameBoard[xCoord][yCoord]
+
+    var totalMatches = 0
+
+    function countMatches (xCoord, yCoord, xAdjust, yAdjust, direction) {
+      if (direction === 'backward') {
+        xAdjust *= -1
+        yAdjust *= -1
+      }
+
+      var playerMove = gameBoard[xCoord][yCoord]
+      var nextX = xCoord + xAdjust
+      var nextY = yCoord + yAdjust
+
+      if (nextX >= 0 && nextX <= 5 && nextY >= 0 && nextY <= 5) {
+        if (playerMove === gameBoard[nextX][nextY] && playerMove) {
+          totalMatches += 1
+          countMatches(nextX, nextY, xAdjust, yAdjust)
+        } else {
+          return
+        }
+      }
+    }
+
+    countMatches(xCoord, yCoord, xAdjust, yAdjust, 'forward')
+    countMatches(xCoord, yCoord, xAdjust, yAdjust, 'backward')
+
+    // If win, end game. If not, proceed to move part 2
+    if (totalMatches >= 4) {
+      scoreBoard[playerMove + 'set'] = true
+    } else {
+      prepMoveB()
+    }
+  }
+
   var $allGameSquare = $('.game-square')
   var scoreBoard = {
     'X': 0,
@@ -114,80 +195,6 @@ $(document).ready(function () {
     $allGameSquare.off()
     $('.rotate-btn').hide()
     $('.alert-message h1').text(scoreBoard.winner)
-  }
-
-  // Checks win condition for a particular tile with direction and coordinates specified
-  function checkWin (rowIndex, colIndex, direction) {
-    var adjustFirstArr = 0
-    var adjustSecondArr = 0
-
-    switch (direction) {
-      case 'vertical':
-        adjustFirstArr = 1
-        adjustSecondArr = 0
-        break
-      case 'horizontal':
-        adjustFirstArr = 0
-        adjustSecondArr = 1
-        break
-      case 'upDiagonal':
-        adjustFirstArr = -1
-        adjustSecondArr = 1
-        break
-      case 'downDiagonal':
-        adjustFirstArr = -1
-        adjustSecondArr = -1
-        break
-      default:
-        adjustFirstArr = 0
-        adjustSecondArr = 0
-    }
-
-    var playerMove = gameBoard[rowIndex][colIndex]
-
-    var checkRowFront = rowIndex + adjustFirstArr
-    var checkColFront = colIndex + adjustSecondArr
-
-    var checkRowBack = rowIndex - adjustFirstArr
-    var checkColBack = colIndex - adjustSecondArr
-
-    var totalMatches = 0
-
-    for (var i = 0; i < 6; i++) {
-      if (checkRowFront >= 0 && checkRowFront <= 5 && checkColFront >= 0 && checkColFront <= 5) {
-        if (gameBoard[checkRowFront][checkColFront] === playerMove && playerMove) {
-          checkRowFront += adjustFirstArr
-          checkColFront += adjustSecondArr
-          totalMatches += 1
-          // Maybe can add winning tile change here
-        } else {
-          break
-        }
-      } else {
-        break
-      }
-    }
-
-    for (var i = 0; i < 6; i++) {
-      if (checkRowBack >= 0 && checkRowBack <= 5 && checkColBack >= 0 && checkColBack <= 5) {
-        if (gameBoard[checkRowBack][checkColBack] === playerMove && playerMove) {
-          checkRowBack -= adjustFirstArr
-          checkColBack -= adjustSecondArr
-          totalMatches += 1
-        } else {
-          break
-        }
-      } else {
-        break
-      }
-    }
-
-    // If win, end game. If not, proceed to move part 2
-    if (totalMatches >= 4) {
-      scoreBoard[playerMove + 'set'] = true
-    } else {
-      prepMoveB()
-    }
   }
 
   // Checks tie condition when all ties filled
