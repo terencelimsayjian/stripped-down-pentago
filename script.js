@@ -8,30 +8,34 @@ $(document).ready(function () {
                     ['', '', '', '', '', '']
   ]
 
-  var player = 'X'
-  var movePart = 'A'
+  var $allGameSquare = $('.game-square')
 
-  /*
-  Flow:
-  1) Player 1 places a tile
-  2) Check win condition -> Can either be player 1 win, or draw(full board)
-  3) Player 1 rotates a tile
-  4) Check win condition - > Can be either player win, or draw(two player wins)
-  5) Change player
+  var gameRound = {
+    'currentPlayer': 'X',
+    'playing': true,
+    'X': {
+      'fiveInARow': false
+    },
+    'O': {
+      'fiveInARow': false
+    }
+  }
 
-  Global Variables
-  1) Playing
-  2) PLayer move
+  // Prep for Move A. Re-adds event listeners for empty game-tiles
+  function addGameSquareListener () {
+    $allGameSquare.off()
+    for (var i = 0; i < $allGameSquare.length; i++) {
+      var $gameSquare = $('.game-square').eq(i)
+      if (!$gameSquare.hasClass('X') && !$gameSquare.hasClass('O')) {
+        $gameSquare.on('click', placeToken)
+      }
+    }
+  }
 
-  Functions
-  1) Check win
-  2) Check draw (Maybe this should take into account two win conditions)
-  3) Rotate board
-  4)
-  */
+  addGameSquareListener()
 
   // Checks win condition for a particular tile with direction and coordinates specified
-  function checkWin (xCoord, yCoord, direction) {
+  function countMatchesOneDirection (xCoord, yCoord, direction) {
     var xAdjust = 0
     var yAdjust = 0
 
@@ -57,11 +61,9 @@ $(document).ready(function () {
         yAdjust = 0
     }
 
-    var playerMove = gameBoard[xCoord][yCoord]
-
     var totalMatches = 0
 
-    function countMatches (xCoord, yCoord, xAdjust, yAdjust, direction) {
+    function countMatchesHalfDirection (xCoord, yCoord, xAdjust, yAdjust, direction) {
       if (direction === 'backward') {
         xAdjust *= -1
         yAdjust *= -1
@@ -74,206 +76,84 @@ $(document).ready(function () {
       if (nextX >= 0 && nextX <= 5 && nextY >= 0 && nextY <= 5) {
         if (playerMove === gameBoard[nextX][nextY] && playerMove) {
           totalMatches += 1
-          countMatches(nextX, nextY, xAdjust, yAdjust)
+          countMatchesHalfDirection(nextX, nextY, xAdjust, yAdjust)
         } else {
           return
         }
       }
     }
 
-    countMatches(xCoord, yCoord, xAdjust, yAdjust, 'forward')
-    countMatches(xCoord, yCoord, xAdjust, yAdjust, 'backward')
+    countMatchesHalfDirection(xCoord, yCoord, xAdjust, yAdjust, 'forward')
+    countMatchesHalfDirection(xCoord, yCoord, xAdjust, yAdjust, 'backward')
 
     // If win, end game. If not, proceed to move part 2
     if (totalMatches >= 4) {
-      scoreBoard[playerMove + 'set'] = true
-    } else {
-      prepMoveB()
+      gameRound[gameRound.currentPlayer].fiveInARow = true
     }
   }
 
-  var $allGameSquare = $('.game-square')
-  var scoreBoard = {
-    'X': 0,
-    'O': 0,
-    'ties': 0,
-    'Xset': false,
-    'Oset': false,
-    'roundEnd': true,
-    'initiator': 'X',
-    'winner': ''
-  }
+  function checkWinCondition (thisRow, thisCol) {
+    countMatchesOneDirection(thisRow, thisCol, 'vertical')
+    countMatchesOneDirection(thisRow, thisCol, 'horizontal')
+    countMatchesOneDirection(thisRow, thisCol, 'upDiagonal')
+    countMatchesOneDirection(thisRow, thisCol, 'downDiagonal')
 
-  gameBoardInit()
-
-  $('.reset-btn').on('click', fullReset)
-
-  $('.next-game-btn').on('click', gameBoardInit)
-
-  $('.instructions-btn').on('click', function () {
-    $('.instructions-container').toggle()
-  })
-
-  $('.close-instructions').on('click', function () {
-    $('.instructions-container').hide()
-  })
-
-  function toggleNextGameBtn () {
-    if (scoreBoard.roundEnd) {
-      $('.next-game-btn').show()
-    } else {
-      $('.next-game-btn').hide()
-    }
-  }
-
-  function gameBoardInit () {
-    $allGameSquare.removeClass('X')
-    $allGameSquare.removeClass('O')
-    gameBoard = [
-                      ['', '', '', '', '', ''],
-                      ['', '', '', '', '', ''],
-                      ['', '', '', '', '', ''],
-                      ['', '', '', '', '', ''],
-                      ['', '', '', '', '', ''],
-                      ['', '', '', '', '', '']
-    ]
-    scoreBoard.roundEnd = false
-    prepMoveA()
-    toggleNextGameBtn()
-    scoreBoard.Xset = false
-    scoreBoard.Oset = false
-  }
-
-  function updateTurnMessage (input) {
-    if (player === 'X') {
-      if (movePart === 'A') {
-        $('.alert-message').text('Player 1: Place a token')
-      } else if (movePart === 'B') {
-        $('.alert-message').text('Player 1: Rotate a tile')
-      }
-    } else if (player === 'O') {
-      if (movePart === 'A') {
-        $('.alert-message').text('Player 2: Place a token')
-      } else if (movePart === 'B') {
-        $('.alert-message').text('Player 2: Rotate a tile')
-      }
-    }
-  }
-
-  // Prep for Move A. Removes rotate buttons, updates turn message, and adds event listeners for empty game-tiles
-  function prepMoveA () {
-    $('.rotate-btn').hide()
-    movePart = 'A'
-    updateTurnMessage()
-    for (var i = 0; i < $allGameSquare.length; i++) {
-      var $gameSquare = $('.game-square').eq(i)
-      if (!$gameSquare.hasClass('X') && !$gameSquare.hasClass('O')) {
-        $gameSquare.on('click', playerMove)
-        $gameSquare.hover(
-          function () {
-            $(this).addClass('hover' + player)
-          },
-          function () {
-            $(this).removeClass('hoverX hoverO')
-          }
-        )
-      }
-    }
-  }
-
-  // Prep for Move B. Turns off event listeners, and shows rotate buttons
-  function prepMoveB () {
-    $allGameSquare.off()
-    $allGameSquare.removeClass('hoverX hoverO')
-    $('.rotate-btn').show()
-    movePart = 'B'
-    updateTurnMessage()
-  }
-
-  // Disables ALL event listeners after win to allow board analysis
-  function freezeFrame () {
-    $allGameSquare.off()
-    $('.rotate-btn').hide()
-    $('.alert-message h1').text(scoreBoard.winner)
-  }
-
-  // Checks tie condition when all ties filled
-  function checkTie () {
-    var gameSquareFilled = 0
+    var filledGameSquares = 0
     for (var i = 0; i < $allGameSquare.length; i++) {
       if ($('.game-square').eq(i).hasClass('X') || $('.game-square').eq(i).hasClass('O')) {
-        gameSquareFilled += 1
+        filledGameSquares += 1
       }
     }
-    if (gameSquareFilled === 36 && !scoreBoard.roundEnd) {
-      scoreBoard.ties += 1
-      scoreBoard.winner = 'Tie'
-      $('.alert-message').text("It's a tie!")
-      updateScoreBoard()
-      freezeFrame()
-      togglePlayerIfTie()
-      toggleNextGameBtn()
+
+    if (gameRound.X.fiveInARow && gameRound.O.fiveInARow) {
+      alert('TIE')
+    } else if (gameRound.X.fiveInARow) {
+      alert('X WIN')
+    } else if (gameRound.O.fiveInARow) {
+      alert('O WIN')
+    } else if (filledGameSquares === 36) {
+      alert('TIE')
     }
   }
 
-  // Consolidates win conditions in one function
-  function checkAllWin (thisRow, thisCol) {
-    checkWin(thisRow, thisCol, 'vertical')
-    checkWin(thisRow, thisCol, 'horizontal')
-    checkWin(thisRow, thisCol, 'upDiagonal')
-    checkWin(thisRow, thisCol, 'downDiagonal')
-    checkTie()
-  }
-
-  // On player click, if populated, populates gameBoard and game-tiles with values. After that, check win condition for that particular entry.
-  function playerMove () {
+  // On click event for move A
+  function placeToken () {
     // If cell is populated
-    $this = $(this)
-    if (!$this.hasClass('X') && !$this.hasClass('O')) {
+    if (!$(this).hasClass('X') && !$(this).hasClass('O')) {
       // Gets rows and col index from HTML divs
-      var thisRow = Number($(this).data('row'))
-      var thisCol = Number($(this).data('col'))
+      var xCoord = Number($(this).data('row'))
+      var yCoord = Number($(this).data('col'))
 
       // Assigns player value to gameBoard array and HTML
-      gameBoard[thisRow][thisCol] = player
-      $(this).addClass(player)
+      gameBoard[xCoord][yCoord] = gameRound.currentPlayer
+      $(this).addClass(gameRound.currentPlayer)
 
       // Checks win condition for clicked cell
-      checkAllWin(thisRow, thisCol)
-
-      if (scoreBoard[player + 'set'] === true) {
-        scoreBoard[player] += 1
-        if (player === 'X') {
-          $('.alert-message').text('Player 1 wins!')
-          scoreBoard.roundEnd = true
-        } else if (player === 'O') {
-          $('.alert-message').text('Player 2 wins!')
-          scoreBoard.roundEnd = true
-        }
-        togglePlayer()
-        scoreBoard.initiator = player
-        scoreBoard.winner = player
-        updateScoreBoard()
-        freezeFrame()
-        toggleNextGameBtn()
-      }
+      checkWinCondition(xCoord, yCoord)
     }
   }
 
-  // Assigns rotate tile function to each button, calling the closure with the appropriate board
-  for (var i = 0; i < 4; i++) {
-    // Define closure for each board, and assign click event for rotate
-    var rotateTileIndex = rotateBoard('board' + i, 'right')
-    var $rotateRightBtn = $('#rotate-right' + i)
-    $rotateRightBtn.on('click', rotateTileIndex)
-
-    var rotateTileIndex = rotateBoard('board' + i, 'left')
-    var $rotateLeftBtn = $('#rotate-left' + i)
-    $rotateLeftBtn.on('click', rotateTileIndex)
+  function togglePlayer () {
+    if (gameRound.currentPlayer === 'X') {
+      gameRound.currentPlayer = 'O'
+    } else {
+      gameRound.currentPlayer = 'X'
+    }
   }
 
-  // For specified board and rotate direction, creates a closure function for rotation behaviour
-  function rotateBoard (boardIndex, rotateDirection) {
+  // Assigns rotate tile function to each button using closure
+  for (var i = 0; i < 4; i++) {
+    var $rotateRightBtn = $('#rotate-right-' + i)
+    var $rotateLeftBtn = $('#rotate-left-' + i)
+
+    var rotateBoardRight = getGameTileData('board' + i, 'right')
+    var rotateBoardLeft = getGameTileData('board' + i, 'left')
+
+    $rotateRightBtn.on('click', rotateBoardRight)
+    $rotateLeftBtn.on('click', rotateBoardLeft)
+  }
+
+  function getGameTileData (boardIndex, rotateDirection) {
     var x = 0
     var y = 0
     var gameTileID
@@ -302,148 +182,61 @@ $(document).ready(function () {
       default:
     }
 
-    // Var declared here due to hoisting issues
     var $gameSquareTile = $(gameTileID + ' .game-square')
 
-    function updateTileValues () {
-      // Storing values to rotate in variables
-
-      var rightRotateTiles = {
-        '0': gameBoard[x + 2][y],
-        '1': gameBoard[x + 1][y],
-        '2': gameBoard[x][y],
-        '3': gameBoard[x + 2][y + 1],
-        '4': gameBoard[x + 1][y + 1],
-        '5': gameBoard[x][y + 1],
-        '6': gameBoard[x + 2][y + 2],
-        '7': gameBoard[x + 1][y + 2],
-        '8': gameBoard[x][y + 2]
-      }
-
-      var leftRotateTiles = {
-        '0': gameBoard[x][y + 2],
-        '1': gameBoard[x + 1][y + 2],
-        '2': gameBoard[x + 2][y + 2],
-        '3': gameBoard[x][y + 1],
-        '4': gameBoard[x + 1][y + 1],
-        '5': gameBoard[x + 2][y + 1],
-        '6': gameBoard[x][y],
-        '7': gameBoard[x + 1][y],
-        '8': gameBoard[x + 2][y]
-      }
+    function rotateBoard () {
+      var newValsAfterRotate = {}
 
       if (rotateDirection === 'right') {
-        $(gameTileID).addClass('rotate-tile-right')
-      } else {
-        $(gameTileID).addClass('rotate-tile-left')
+        newValsAfterRotate = {
+          '0': gameBoard[x + 2][y],
+          '1': gameBoard[x + 1][y],
+          '2': gameBoard[x][y],
+          '3': gameBoard[x + 2][y + 1],
+          '4': gameBoard[x + 1][y + 1],
+          '5': gameBoard[x][y + 1],
+          '6': gameBoard[x + 2][y + 2],
+          '7': gameBoard[x + 1][y + 2],
+          '8': gameBoard[x][y + 2]
+        }
+      } else if (rotateDirection === 'left') {
+        newValsAfterRotate = {
+          '0': gameBoard[x][y + 2],
+          '1': gameBoard[x + 1][y + 2],
+          '2': gameBoard[x + 2][y + 2],
+          '3': gameBoard[x][y + 1],
+          '4': gameBoard[x + 1][y + 1],
+          '5': gameBoard[x + 2][y + 1],
+          '6': gameBoard[x][y],
+          '7': gameBoard[x + 1][y],
+          '8': gameBoard[x + 2][y]
+        }
       }
 
-      // Added to smoothen out transition animation
-      $('.rotate-btn').hide()
+      $gameSquareTile.removeClass('X')
+      $gameSquareTile.removeClass('O')
 
-      // Function to execute after visual rotation
-      window.setTimeout(unRotate, 800)
+      var counter = 0
+      // For each item on a game-tile, get new rotated value and assign new classes accordingly
+      for (var i = x; i < x + 3; i++) {
+        for (var j = y; j < y + 3; j++) {
+          // Assigning the values to new positions on gameBoard
+          gameBoard[i][j] = newValsAfterRotate[counter]
 
-      function unRotate () {
-        // Removes rotated class
-        $(gameTileID).removeClass('rotate-tile-right')
-        $(gameTileID).removeClass('rotate-tile-left')
-
-        $gameSquareTile.removeClass('X')
-        $gameSquareTile.removeClass('O')
-
-        var counter = 0
-        // For each item on a game-tile, get new rotated value and assign new classes accordingly
-        for (var i = x; i < x + 3; i++) {
-          for (var j = y; j < y + 3; j++) {
-            // Assigning the values to new positions on gameBoard
-            if (rotateDirection === 'right') {
-              gameBoard[i][j] = rightRotateTiles[counter]
-            } else if (rotateDirection === 'left') {
-              gameBoard[i][j] = leftRotateTiles[counter]
-            }
-
-            // Changing class to reflect gameBoard changes
-            if (gameBoard[i][j] === 'X') {
-              $gameSquareTile.eq(counter).addClass('X')
-            } else if (gameBoard[i][j] === 'O') {
-              $gameSquareTile.eq(counter).addClass('O')
-            }
-            // counter to loop through the gameSquareTile array
-            counter += 1
-            checkAllWin(i, j)
+          // Changing class to reflect gameBoard changes
+          if (gameBoard[i][j] === 'X') {
+            $gameSquareTile.eq(counter).addClass('X')
+          } else if (gameBoard[i][j] === 'O') {
+            $gameSquareTile.eq(counter).addClass('O')
           }
+            // counter to loop through the gameSquareTile array
+          counter += 1
+          checkWinCondition(i, j)
         }
-
-      // Verifying win and tie condition after win condition has been checked for entire tile
-      // Toggles player for each situation
-        if (scoreBoard.Xset && scoreBoard.Oset) {
-          scoreBoard.ties += 1
-          scoreBoard.roundEnd = true
-          scoreBoard.winner = 'Tie'
-          $('.alert-message').text("It's a tie!")
-          togglePlayerIfTie()
-        } else if (scoreBoard.Xset && !scoreBoard.Oset) {
-          scoreBoard.X += 1
-          scoreBoard.roundEnd = true
-          scoreBoard.winner = 'X'
-          $('.alert-message').text('Player 1 wins!')
-          player = 'O'
-          scoreBoard.initiator = player
-        } else if (!scoreBoard.Xset && scoreBoard.Oset) {
-          scoreBoard.O += 1
-          scoreBoard.roundEnd = true
-          scoreBoard.winner = 'O'
-          $('.alert-message').text('Player 2 wins!')
-          player = 'X'
-          scoreBoard.initiator = player
-        } else {
-          togglePlayer()
-          prepMoveA()
-        }
-
-        if (scoreBoard.roundEnd) {
-          freezeFrame()
-          updateScoreBoard()
-        }
-
-        toggleNextGameBtn()
       }
+      togglePlayer()
+      addGameSquareListener()
     }
-    return updateTileValues
-  }
-
-  function updateScoreBoard () {
-    $('.player-x-score').text(scoreBoard.X)
-    $('.player-o-score').text(scoreBoard.O)
-    $('.tie-score').text(scoreBoard.ties)
-  }
-
-  function fullReset () {
-    gameBoardInit()
-    for (var x in scoreBoard) {
-      scoreBoard[x] = 0
-    }
-    player = 'X'
-    updateTurnMessage()
-    updateScoreBoard()
-  }
-
-  function togglePlayer () {
-    if (player === 'X') {
-      player = 'O'
-    } else {
-      player = 'X'
-    }
-  }
-
-  function togglePlayerIfTie () {
-    if (scoreBoard.initiator === 'X') {
-      player = 'O'
-      scoreBoard.initiator = player
-    } else {
-      player = 'X'
-      scoreBoard.initiator = player
-    }
+    return rotateBoard
   }
 })
